@@ -15,69 +15,180 @@
     <link rel="stylesheet" href="../popup_js_photo_editor.css" />
     <script src="../popup_js_photo_editor.js"></script>
     <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+        :root {
+            --primary-color: #008aff;
+            --background-dark: #121212;
+            --background-light: #202020;
+            --text-primary-dark: #ffffff;
+            --border-color: #ffffff;
         }
+
+        body {
+            font-family: 'Comfortaa', cursive;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--background-dark);
+            color: var(--text-primary-dark);
+            height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--background-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: auto;
+            padding: 1rem;
+        }
+
         .image-drop-area {
             width: 80%;
             height: 200px;
-            border: 2px dashed #fff;
-            margin: 20px auto;
+            border: 2px dashed var(--border-color);
+            margin: 1rem 0;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
             overflow: auto;
+            border-radius: 8px;
+            transition: border 0.3s;
         }
+
+        .image-drop-area:hover {
+            border: 2px dashed var(--primary-color);
+        }
+
         .image-drop-area img {
             max-width: 100px;
             max-height: 100px;
             margin: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
         }
+
         .controls {
-            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
         }
+
+        .controls label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;
+        }
+
+        .controls input {
+            width: 80px;
+            padding: 0.3rem;
+            margin-top: 0.2rem;
+            background-color: var(--background-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary-dark);
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #006bbf;
+        }
+
         .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #222;
+            background-color: var(--background-light);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
             width: 80%;
-           
         }
+
         .popup.show {
             display: block;
+        }
+
+        .popup h2 {
+            margin: 0 0 1rem;
+        }
+
+        .editor-buttons {
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .final-image {
+            display: block;
+            margin: 1rem auto;
+            max-width: 80%;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>Drag & Drop Image Editor</h1>
-    <div class="image-drop-area" id="imageDropArea">Drop images here</div>
-    
-    <div class="controls">
-        <button onclick="openEditor()">Edit</button>
+    <div class="header">
+        <h1>Drag & Drop Image Editor</h1>
     </div>
-    
+    <div class="container">
+        <div class="image-drop-area" id="imageDropArea">Drop images here</div>
+        
+        <div class="controls">
+            <label>
+                Canvas Width
+                <input type="number" id="canvasWidth" value="1920"/>
+            </label>
+            <label>
+                Canvas Height
+                <input type="number" id="canvasHeight" value="1080"/>
+            </label>
+            <button onclick="openEditor()">Edit</button>
+        </div>
+    </div>
+
     <div id="editorPopup" class="popup">
         <h2>Image Editor</h2>
         <div id="editor-container"></div>
-        <button onclick="closeEditor()">Close</button>
+        <div class="editor-buttons">
+            <button onclick="closeEditor()">Close</button>
+        </div>
     </div>
     
     <script>
         let droppedImages = [];
-        let maxWidth = 1920;
-        let maxHeight = 1080;
+        let firstImageSet = false;
         const dropArea = document.getElementById("imageDropArea");
+        const canvasWidthInput = document.getElementById("canvasWidth");
+        const canvasHeightInput = document.getElementById("canvasHeight");
 
         dropArea.addEventListener("dragover", (event) => {
             event.preventDefault();
@@ -93,12 +204,16 @@
                     img.src = e.target.result;
                     dropArea.appendChild(img);
                     droppedImages.push(e.target.result);
-                    
+
                     let imageObj = new Image();
                     imageObj.src = e.target.result;
                     imageObj.onload = () => {
-                        if (imageObj.width > maxWidth) maxWidth = imageObj.width;
-                        if (imageObj.height > maxHeight) maxHeight = imageObj.height;
+                        // If it's the first image, set the default width/height to this image's size
+                        if (!firstImageSet) {
+                            canvasWidthInput.value = imageObj.width;
+                            canvasHeightInput.value = imageObj.height;
+                            firstImageSet = true;
+                        }
                     };
                 };
                 reader.readAsDataURL(file);
@@ -111,13 +226,17 @@
                 return;
             }
 
+            // Use the user-selected or default canvas sizes
+            const width = parseInt(canvasWidthInput.value);
+            const height = parseInt(canvasHeightInput.value);
+
             document.getElementById("editorPopup").classList.add("show");
 
             const editor = new PhotoEditor();
             editor.init(
                 document.getElementById("editor-container"),
-                maxWidth,
-                maxHeight,
+                width,
+                height,
                 droppedImages,
                 (finalDataURL) => {
                     console.log("Edited Image:", finalDataURL);
@@ -135,8 +254,7 @@
         function showFinalImage(imageSrc) {
             let resultImg = document.createElement("img");
             resultImg.src = imageSrc;
-            resultImg.style.display = "block";
-            resultImg.style.margin = "20px auto";
+            resultImg.className = "final-image";
             document.body.appendChild(resultImg);
         }
     </script>
