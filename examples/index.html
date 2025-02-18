@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor</title>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+          }
+        }
+    </script>
+    <link rel="stylesheet" href="../popup_js_photo_editor.css" />
+    <script src="../popup_js_photo_editor.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .image-drop-area {
+            width: 80%;
+            height: 200px;
+            border: 2px dashed #fff;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow: auto;
+        }
+        .image-drop-area img {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 5px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+            width: 80%;
+           
+        }
+        .popup.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drag & Drop Image Editor</h1>
+    <div class="image-drop-area" id="imageDropArea">Drop images here</div>
+    
+    <div class="controls">
+        <button onclick="openEditor()">Edit</button>
+    </div>
+    
+    <div id="editorPopup" class="popup">
+        <h2>Image Editor</h2>
+        <div id="editor-container"></div>
+        <button onclick="closeEditor()">Close</button>
+    </div>
+    
+    <script>
+        let droppedImages = [];
+        let maxWidth = 1920;
+        let maxHeight = 1080;
+        const dropArea = document.getElementById("imageDropArea");
+
+        dropArea.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+
+        dropArea.addEventListener("drop", (event) => {
+            event.preventDefault();
+            let files = event.dataTransfer.files;
+            for (let file of files) {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    let img = document.createElement("img");
+                    img.src = e.target.result;
+                    dropArea.appendChild(img);
+                    droppedImages.push(e.target.result);
+                    
+                    let imageObj = new Image();
+                    imageObj.src = e.target.result;
+                    imageObj.onload = () => {
+                        if (imageObj.width > maxWidth) maxWidth = imageObj.width;
+                        if (imageObj.height > maxHeight) maxHeight = imageObj.height;
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function openEditor() {
+            if (droppedImages.length === 0) {
+                alert("Please drop at least one image.");
+                return;
+            }
+
+            document.getElementById("editorPopup").classList.add("show");
+
+            const editor = new PhotoEditor();
+            editor.init(
+                document.getElementById("editor-container"),
+                maxWidth,
+                maxHeight,
+                droppedImages,
+                (finalDataURL) => {
+                    console.log("Edited Image:", finalDataURL);
+                    alert("Photo Editing Complete!");
+                    closeEditor();
+                    showFinalImage(finalDataURL);
+                }
+            );
+        }
+
+        function closeEditor() {
+            document.getElementById("editorPopup").classList.remove("show");
+        }
+
+        function showFinalImage(imageSrc) {
+            let resultImg = document.createElement("img");
+            resultImg.src = imageSrc;
+            resultImg.style.display = "block";
+            resultImg.style.margin = "20px auto";
+            document.body.appendChild(resultImg);
+        }
+    </script>
+</body>
+</html>

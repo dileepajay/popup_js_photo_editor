@@ -1,0 +1,55 @@
+<!-- Example usage in your custom HTML page -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Test Photo Editor Plugin</title>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+          }
+        }
+    </script>
+    <link rel="stylesheet" href="../popup_js_photo_editor.css" />
+
+    <script src="../popup_js_photo_editor.js"></script>
+</head>
+
+<body>
+    <h1>My Third-Party Page</h1>
+
+    <div id="editor-container"></div>
+
+    <script>
+        // Example data
+        const myImages = [
+            "http://127.0.0.1:8082/workspace/00_samples_02/e__00018_.png",
+            "http://127.0.0.1:8082/workspace/00_transformation/image.png",
+            "http://127.0.0.1:8082/workspace/00_transformation/01_1_1_RMBG.png",
+            "http://127.0.0.1:8082/workspace%2FTEM%2Fwhite_mesh.glb"
+        ];
+
+        // A callback that runs when the user finishes editing
+        function handleEditedImage(finalDataURL) {
+            console.log("Got final DataURL:", finalDataURL);
+            alert("Photo Editing Complete!");
+            // You could do something with finalDataURL, e.g. upload or display in an <img>.
+        }
+
+        // Create an instance of PhotoEditor
+        const editor = new PhotoEditor();
+        editor.init(
+            document.getElementById("editor-container"), // the container <div>
+            1920,                                         // width
+            1080,                                         // height
+            myImages,                                    // image urls array
+            handleEditedImage                             // callback
+        );
+    </script>
+</body>
+
+</html>

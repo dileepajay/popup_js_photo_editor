@@ -1,0 +1,263 @@
+:root {
+    --primary-color: #008aff;
+    --background-dark: #121212;
+    --background-light: #202020;
+    --text-primary-dark: #ffffff;
+    --border-color: #ffffff;
+}
+
+body {
+    font-family: 'Comfortaa', cursive;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-dark);
+    color: var(--text-primary-dark);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Main container for the editor */
+.photo-editor-container {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    background: #272727;
+    /* You can add width/height if you need it explicit:
+       width: 1000px;
+       height: 700px;
+    */
+}
+
+/* Left panel (tools) */
+.photo-editor-left-panel {
+    width: 50px;
+    background: #1a1a1a;
+    display: flex
+;
+    flex-direction: column;
+    padding: 8px;
+    /* width: 80px; */
+    border-radius: 6px;
+    margin: 10px; 
+}
+
+/* Title in left panel */
+.photo-editor-tools-title {
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Center panel (where canvas goes) */
+.photo-editor-center-panel {
+    flex: 1;            /* let it grow to fill space */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;   /* optional if you want the entire panel to hide overflow */
+    position: relative;
+  }
+  
+
+/* The canvas itself */
+.photo-editor-canvas {
+    background: #1e1e1e;
+    /* border: 1px solid #000; */
+    box-shadow: black 0px 0px 7px 0px;
+    margin: 20px;
+}
+
+/* Right panel (options + layers) */
+.photo-editor-right-panel {
+    width: 280px;
+    min-width: 280px;
+    background: #444;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+}
+
+/* The box that holds the tool options */
+.photo-editor-options-box {
+    flex: 0 0 auto;
+    border: 1px solid #555;
+    padding: 6px;
+    margin-bottom: 6px;
+}
+
+/* Title for options box */
+.photo-editor-options-title {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+/* Layers container */
+.photo-editor-layers-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #555;
+    padding: 6px;
+}
+
+/* Layers box title */
+.photo-editor-layers-title {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+/* The scrollable list of layers */
+.photo-editor-layers-list {
+    flex: 1;
+    overflow-y: auto; 
+    padding: 4px;
+}
+
+/* A single layer row in the list */
+.photo-editor-layer-row {
+    border-radius: 3px;
+    padding: 4px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    background: #222;
+    /* default background when not selected */
+    position: relative;
+    /* so float-right buttons stay in bounding box */
+}
+.photo-editor-layer-row:hover{
+    background: #313131;
+}
+ 
+
+/* If the layer row is selected, highlight it */
+.photo-editor-layer-row.selected {
+    background: #666;
+}
+
+/* The buttons that float right on each layer row */
+.photo-editor-layer-row .layer-control-button {
+    float: right;
+    margin-left: 4px;
+    cursor: pointer;
+}
+.photo-editor-layer-row span{
+    font-size: 8px;
+}
+/* Container for the bottom row of layer actions (Add/Remove/Finish) */
+.photo-editor-layer-actions {
+    margin-top: 6px;
+    text-align: center;
+}
+
+/* Generic button styling */
+.photo-editor-button {
+    display: inline-block; 
+    background-color: #373737;
+    color: #fff;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.photo-editor-button:hover {
+    background-color: #5c5c5c;
+}
+
+.photo-editor-button-selected{
+    background-color: #00539b;
+}
+.photo-editor-button-selected:hover{
+    background-color: #0078e0;
+}
+
+/* Generic button styling */
+.photo-editor-button-layers { 
+    background-color: #373737;
+    color: #fff;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px; 
+    margin: 5px;
+}
+
+.photo-editor-button-layers:hover {
+    background-color: #5c5c5c;
+}
+
+/* Generic button styling */
+.layer-option-icon {
+    width: 16px;
+} 
+.layer-preview-canvas{
+    background-color: #373737;
+}
+/* If you want a "hidden" utility class to toggle display in JS:
+  .hidden {
+    display: none !important;
+  }
+  */
+
+  .photo-editor-finish{
+    background-color: #008aff;
+    padding: 5px;
+    margin: 5px;
+    color: white;
+    width: 90%;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .photo-editor-finish:hover{
+    background-color: #2a9cff;
+  }
+
+  .photo-editor-zoom-controls{
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.212);
+    padding: 10px;
+    border-radius: 10px;
+    width: 160px;
+    height: 50px;
+  }
+
+  .photo-editor-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* Change from overflow: auto (or scroll) to overflow: hidden */
+    overflow: hidden;
+    background: #ccc; /* optional */
+  }
+  
+  .photo-editor-canvas {
+    background: #fff;
+    transform-origin: top left; /* necessary for zooming from the top-left corner */
+  }
+  
+  .left-panel-break{
+    border-bottom: #575757 solid 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;;
+  }
+
+  .photo-editor-pen-options {
+    padding: 8px;
+  }
+  
+  .photo-editor-option-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .photo-editor-option-row label {
+    width: 70px;   /* or auto */
+    font-weight: bold;
+  }
+  
