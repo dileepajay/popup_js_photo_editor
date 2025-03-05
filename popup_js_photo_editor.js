@@ -862,6 +862,13 @@ var icons = [
     this.redrawAll();
   };
 
+  PhotoEditor.prototype.setCanvasSize= function(width,height){
+    this.width = width;
+    this.height = height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.redrawAll();
+  };
   // ------------------------------------------------------------------------
   // Zoom, etc.
   // ------------------------------------------------------------------------
@@ -938,11 +945,18 @@ var icons = [
       this.redrawAll();
       return;
     }
+    this.firstImageSet=false;
     this.imageUrls.forEach(url => {
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => {
         const w = img.width, h = img.height;
+
+        if (this.width==-1 || this.height==-1) {
+          this.setCanvasSize(w,h);
+          this.fitToScreen();
+        }
+
         const sw = this.width / w, sh = this.height / h;
         const sc = Math.min(sw, sh, 1);
         const dispW = w * sc, dispH = h * sc;
@@ -967,6 +981,7 @@ var icons = [
           shapeType: ""
         };
         this.layers.push(newLayer);
+
         this.saveHistory({
           name: "layerAdded",
           layerId: newLayer.id,
